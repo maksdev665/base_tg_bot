@@ -81,10 +81,50 @@ docker-compose up -d
 cp .env.example .env
 # Добавьте ваш BOT_TOKEN
 
+# Инициализируй Alembic как следует. Это команда для асинхроную работы с базой
+alembic init -t async migration
+
 # 6. Создайте первую миграцию
 alembic revision --autogenerate -m "init"
 alembic upgrade head
 
 # 7. Запустите бота
 python -m bot.main
+```
+### 🎯 Полезные команды Alembic:
+```bash
+# Создать миграцию вручную
+alembic revision -m "Add new column"
+
+# Откатить на одну миграцию назад
+alembic downgrade -1
+
+# Откатить все миграции
+alembic downgrade base
+
+# Показать SQL без применения
+alembic upgrade head --sql
+
+# Создать миграцию с автогенерацией
+alembic revision --autogenerate -m "Add user table"
+```
+
+### 📝 В файле migration/env.py нужно добавить следующие настройки
+```python
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+```
+
+```python
+# Импортируй Base и модели
+from database.models import Base
+```
+
+```python
+# Установи URL подключения:
+from bot.config import settings
+
+config.set_main_option("sqlalchemy.url", str(settings.database_url))
+target_metadata = Base.metadata
 ```
